@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:bitcoin_ticker_flutter/coin_data.dart';
+import 'package:bitcoin_ticker_flutter/network_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
@@ -12,6 +13,10 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   dynamic selectedCurrency = currenciesList[0];
+  double currencyValueBTC = 0;
+  double currencyValueETH = 0;
+  double currencyValueLIT = 0;
+  NetworkHelper networkHelper = NetworkHelper();
 
 
   @override
@@ -32,9 +37,17 @@ class _PriceScreenState extends State<PriceScreen> {
     return DropdownButton<String>(
       value: selectedCurrency,
       items: dropList,
-      onChanged: (value) {
+      onChanged: (value) async {
+        dynamic dataBTC = await networkHelper.getRate(selectedCurrency,'BTC');
+        dynamic dataETH = await networkHelper.getRate(selectedCurrency, 'ETH');
+        dynamic dataLIT = await networkHelper.getRate(selectedCurrency, 'LIT');
+
         setState(() {
           selectedCurrency = value;
+
+          currencyValueBTC = dataBTC['rate'];
+          currencyValueETH = dataETH['rate'];
+          currencyValueLIT = dataLIT['rate'];
         });
       },
     );
@@ -73,12 +86,12 @@ class _PriceScreenState extends State<PriceScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        child: const Padding(
+        child: Padding(
           padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
           child: Text(
-            '1 BTC = ? USD',
+            '1 BTC = $currencyValueBTC $selectedCurrency',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20.0,
               color: Colors.white,
             ),
@@ -86,6 +99,48 @@ class _PriceScreenState extends State<PriceScreen> {
         ),
       ),
     ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+              child: Card(
+                color: Colors.lightBlueAccent,
+                elevation: 5.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+                  child: Text(
+                    '1 ETH = $currencyValueETH $selectedCurrency',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+              child: Card(
+                color: Colors.lightBlueAccent,
+                elevation: 5.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+                  child: Text(
+                    '1 LIT = $currencyValueLIT $selectedCurrency',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
     Container(
     height: 150.0,
     alignment: Alignment.center,
